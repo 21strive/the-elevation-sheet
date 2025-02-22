@@ -52,7 +52,7 @@ function removeItem(id) {
         <label for="simple-search" class="sr-only">Search</label>
         <input type="text" id="simple-search" v-model="searchQuery"
           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          placeholder="Search item name..." required />
+          placeholder="Cari nama item..." required />
         <button type="submit"
           class="p-2.5 ms-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
           <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -77,12 +77,14 @@ function removeItem(id) {
   </aside>
 
   <div class="flex flex-col gap-4 p-4 sm:mr-[400px] h-screen">
-    <div
-      class="flex-1 flex flex-row items-center p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
+    <div class="relative flex-1 flex flex-row items-center gap-2 p-4 border-2 border-gray-400 border-dashed rounded-lg">
+      <div v-if="targetItems.length === 0"
+        class="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 flex flex-col items-center">
+        <span class="text-lg font-semibold">Target Area</span>
+        <span class="text-sm text-gray-500">Gulirkan item kesini</span>
+      </div>
       <div v-if="targetItems.length !== 0" class="flex flex-row items-center">
-        <!-- <span class="text-lg font-semibold">Target Area</span>
-        <span class="text-sm text-gray-500">Drag items here</span> -->
-        <span>100cm</span>
+        <span class="-rotate-90">100cm</span>
         <div class="flex flex-col items-center">
           <div class="h-0.5 w-3 bg-black"></div>
           <div class="h-10 w-0.5 bg-black"></div>
