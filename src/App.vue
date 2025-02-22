@@ -1,5 +1,27 @@
-<script setup lang="ts">
+<script setup>
+import { ref } from 'vue'
+import draggable from 'vuedraggable'
 
+// Source items that can be cloned when dragged.
+const sourceItems = ref([
+  { id: 1, name: 'Item 1', color: 'red' },
+  { id: 2, name: 'Item 2', color: 'blue' },
+  { id: 3, name: 'Item 3', color: 'yellow' },
+  { id: 4, name: 'Item 4', color: 'purple' }
+])
+
+// Target items start empty and will be populated by cloned items.
+const targetItems = ref([])
+
+// Clone function: creates a new item so that the source remains unchanged.
+function clone(item) {
+  return { ...item, id: Date.now() } // Assigns a new unique ID
+}
+
+// Remove function: filters out the item with the provided id from the target list.
+function removeItem(id) {
+  targetItems.value = targetItems.value.filter(item => item.id !== id)
+}
 </script>
 
 <template>
@@ -17,7 +39,6 @@
     class="fixed top-0 right-0 z-40 w-[400px] h-screen transition-transform translate-x-full sm:translate-x-0"
     aria-label="Sidebar">
     <div class="h-full px-3 py-4 overflow-y-hidden bg-gray-50 dark:bg-gray-800">
-
       <form class="flex items-center max-w-sm mx-auto">
         <label for="simple-search" class="sr-only">Search</label>
         <div class="relative w-full">
@@ -29,7 +50,7 @@
             </svg>
           </div>
           <input type="text" id="simple-search"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="Search branch name..." required />
         </div>
         <button type="submit"
@@ -42,23 +63,38 @@
         </button>
       </form>
 
-      <div class="grid grid-cols-2 gap-4 mt-5">
-        <div class="size-40 bg-red-500"></div>
-        <div class="size-40 bg-blue-500"></div>
-        <div class="size-40 bg-blue-500"></div>
-        <div class="size-40 bg-blue-500"></div>
-      </div>
+      <draggable v-model="sourceItems" :clone="clone" :group="{ name: 'items', pull: 'clone', put: false }"
+        class="grid grid-cols-2 gap-4 mt-5">
+        <template #item="{ element }">
+          <div :key="element.id" class="size-40"
+            :class="element.color === 'blue' ? 'bg-blue-500' : `bg-${element.color}-500`"></div>
+        </template>
+      </draggable>
     </div>
   </aside>
 
   <div class="p-4 sm:mr-[400px] h-screen">
     <div class="flex items-center p-4 h-full border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
-      <div class="flex flex-row gap-4">
-        <div class="size-40 bg-blue-500"></div>
-        <!-- <div class="size-40 bg-red-500"></div> -->
-        <div class="size-40 bg-blue-500"></div>
-        <div class="size-40 bg-blue-500"></div>
-      </div>
+      <draggable v-model="targetItems" group="items"
+        class="flex flex-row items-center justify-center gap-4 h-full w-full">
+        <template #item="{ element }">
+          <div :key="element.id" class="relative size-40"
+            :class="element.color === 'blue' ? 'bg-blue-500' : `bg-${element.color}-500`">
+            <!-- Remove button -->
+            <button @click="removeItem(element.id)"
+              class="absolute top-0 right-0 p-1 text-xs bg-white rounded-full text-red-500 hover:bg-red-100">
+              ✕
+            </button>
+          </div>
+        </template>
+      </draggable>
     </div>
   </div>
 </template>
+
+<style scoped>
+.size-40 {
+  width: 80px;
+  height: 80px;
+}
+</style>
