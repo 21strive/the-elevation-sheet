@@ -11,7 +11,8 @@ const sourceItems = ref([
 ])
 
 // Target items start empty and will be populated by cloned items.
-const targetItems = ref([])
+const targetItems = ref([
+])
 
 // Reactive search query.
 const searchQuery = ref('')
@@ -25,11 +26,6 @@ const filteredSourceItems = computed(() => {
     item.name.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })
-
-// Clone function: creates a new item so that the source remains unchanged.
-function clone(item) {
-  return { ...item, id: Date.now() } // Assigns a new unique ID
-}
 
 // Remove function: filters out the item with the provided id from the target list.
 function removeItem(id) {
@@ -67,38 +63,63 @@ function removeItem(id) {
         </button>
       </form>
 
-      <draggable :list="filteredSourceItems" :clone="clone" :group="{ name: 'items', pull: 'clone', put: false }"
+      <draggable :list="filteredSourceItems" :group="{ name: 'items', pull: 'clone', put: false }"
         class="grid grid-cols-2 gap-4 mt-5">
         <template #item="{ element }">
-          <div :key="element.id" class="size-40"
-            :class="element.color === 'blue' ? 'bg-blue-500' : `bg-${element.color}-500`"></div>
+          <div class="flex flex-col gap-2">
+            <div :key="element.id" class="h-40 w-[180px]"
+              :class="element.color === 'blue' ? 'bg-blue-500' : `bg-${element.color}-500`"></div>
+            <span>{{ element.name }}</span>
+          </div>
         </template>
       </draggable>
     </div>
   </aside>
 
-  <div class="p-4 sm:mr-[400px] h-screen">
-    <div class="flex items-center p-4 h-full border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
-      <draggable v-model="targetItems" group="items"
-        class="flex flex-row items-center justify-center gap-4 h-full w-full">
+  <div class="flex flex-col gap-4 p-4 sm:mr-[400px] h-screen">
+    <div
+      class="flex-1 flex flex-row items-center p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
+      <div v-if="targetItems.length !== 0" class="flex flex-row items-center">
+        <!-- <span class="text-lg font-semibold">Target Area</span>
+        <span class="text-sm text-gray-500">Drag items here</span> -->
+        <span>100cm</span>
+        <div class="flex flex-col items-center">
+          <div class="h-0.5 w-3 bg-black"></div>
+          <div class="h-10 w-0.5 bg-black"></div>
+          <div class="h-0.5 w-3 bg-black"></div>
+        </div>
+      </div>
+      <draggable v-model="targetItems" group="items" class="flex flex-row items-center h-full w-full overflow-x-scroll">
         <template #item="{ element }">
-          <div :key="element.id" class="relative size-40"
-            :class="element.color === 'blue' ? 'bg-blue-500' : `bg-${element.color}-500`">
-            <!-- Remove button -->
-            <button @click="removeItem(element.id)"
-              class="absolute top-0 right-0 p-1 text-xs bg-white rounded-full text-red-500 hover:bg-red-100">
-              ✕
-            </button>
+          <div class="flex flex-col items-center gap-4 w-[calc(160px+20px)]">
+            <span>{{ element.name }}</span>
+            <div :key="element.id" class="relative size-40"
+              :class="element.color === 'blue' ? 'bg-blue-500' : `bg-${element.color}-500`">
+              <button @click="removeItem(element.id)"
+                class="absolute top-0 right-0 p-1 text-xs bg-white rounded-full text-red-500 hover:bg-red-100">
+                ✕
+              </button>
+            </div>
+            <div class="flex flex-row items-center">
+              <div class="w-2.5 h-0.5 bg-black"></div>
+              <div class="w-0.5 h-3 bg-black"></div>
+              <div class="w-[calc(160px-4px)] h-0.5 bg-black"></div>
+              <div class="w-0.5 h-3 bg-black"></div>
+              <div class="w-2.5 h-0.5 bg-black"></div>
+            </div>
+
+            <span>
+              100cm
+            </span>
           </div>
         </template>
       </draggable>
     </div>
+
+    <div class="flex-none flex flex-row justify-between text-lg font-semibold">
+      <span>X: 100cm</span>
+      <span>Y: 100cm</span>
+      <span>Jumlah: {{ targetItems.length }} Item</span>
+    </div>
   </div>
 </template>
-
-<style scoped>
-.size-40 {
-  width: 80px;
-  height: 80px;
-}
-</style>
