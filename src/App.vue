@@ -1,13 +1,18 @@
 <script setup>
 import { ref, computed } from 'vue'
 import draggable from 'vuedraggable'
+import SingleWindow from './components/SingleWindow.vue';
+
+const Type = Object.freeze({
+  SW: Symbol("Single Wndow"),
+  BLUE: Symbol("blue"),
+  GREEN: Symbol("green")
+});
 
 // Source items that can be cloned when dragged.
 const sourceItems = ref([
-  { id: 1, name: 'Item 1', color: 'red' },
-  { id: 2, name: 'Item 2', color: 'blue' },
-  { id: 3, name: 'Item 3', color: 'yellow' },
-  { id: 4, name: 'Item 4', color: 'purple' }
+  { id: 1, name: Type.SW, color: 'red', width: 1200, height: 3000 },
+  { id: 2, name: 'Item 2', color: 'blue', width: 120, height: 300 },
 ])
 
 // Target items start empty and will be populated by cloned items.
@@ -66,9 +71,9 @@ function removeItem(id) {
       <draggable :list="filteredSourceItems" :group="{ name: 'items', pull: 'clone', put: false }"
         class="grid grid-cols-2 gap-4 mt-5">
         <template #item="{ element }">
-          <div class="flex flex-col gap-2">
-            <div :key="element.id" class="h-40 w-[180px]"
-              :class="element.color === 'blue' ? 'bg-blue-500' : `bg-${element.color}-500`"></div>
+          <div :key="element.id" class="flex flex-col gap-2">
+            <div class="h-40 w-[180px]" :class="element.color === 'blue' ? 'bg-blue-500' : `bg-${element.color}-500`">
+            </div>
             <span>{{ element.name }}</span>
           </div>
         </template>
@@ -77,43 +82,16 @@ function removeItem(id) {
   </aside>
 
   <div class="flex flex-col gap-4 p-4 sm:mr-[400px] h-screen">
-    <div class="relative flex-1 flex flex-row items-center gap-2 p-4 border-2 border-gray-400 border-dashed rounded-lg">
+    <div class="relative flex-1 p-4 border-2 border-gray-400 border-dashed rounded-lg">
       <div v-if="targetItems.length === 0"
         class="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 flex flex-col items-center">
         <span class="text-lg font-semibold">Target Area</span>
         <span class="text-sm text-gray-500">Gulirkan item kesini</span>
       </div>
-      <div v-if="targetItems.length !== 0" class="flex flex-row items-center">
-        <span class="-rotate-90">100cm</span>
-        <div class="flex flex-col items-center">
-          <div class="h-0.5 w-3 bg-black"></div>
-          <div class="h-10 w-0.5 bg-black"></div>
-          <div class="h-0.5 w-3 bg-black"></div>
-        </div>
-      </div>
-      <draggable v-model="targetItems" group="items" class="flex flex-row items-center h-full w-full overflow-x-scroll">
+      <draggable v-model="targetItems" group="items"
+        class="flex flex-row items-center justify-center h-full w-full overflow-x-scroll">
         <template #item="{ element }">
-          <div class="flex flex-col items-center gap-4 w-[calc(160px+20px)]">
-            <span>{{ element.name }}</span>
-            <div :key="element.id" class="relative size-40"
-              :class="element.color === 'blue' ? 'bg-blue-500' : `bg-${element.color}-500`">
-              <button @click="removeItem(element.id)"
-                class="absolute top-0 right-0 p-1 text-xs bg-white rounded-full text-red-500 hover:bg-red-100">
-                ✕
-              </button>
-            </div>
-            <div class="flex flex-row items-center">
-              <div class="w-2.5 h-0.5 bg-black"></div>
-              <div class="w-0.5 h-3 bg-black"></div>
-              <div class="w-[calc(160px-4px)] h-0.5 bg-black"></div>
-              <div class="w-0.5 h-3 bg-black"></div>
-              <div class="w-2.5 h-0.5 bg-black"></div>
-            </div>
-
-            <span>
-              100cm
-            </span>
-          </div>
+          <SingleWindow :key="element.id" v-bind="element" :name="element.name.description" />
         </template>
       </draggable>
     </div>
