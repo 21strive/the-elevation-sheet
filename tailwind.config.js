@@ -5,14 +5,14 @@ module.exports = {
   darkMode: ["class"],
   safelist: ["dark"],
   prefix: "",
-  
+
   content: [
     './pages/**/*.{js,jsx,vue}',
     './components/**/*.{js,jsx,vue}',
     './app/**/*.{js,jsx,vue}',
     './src/**/*.{js,jsx,vue}',
-	],
-  
+  ],
+
   theme: {
     container: {
       center: true,
@@ -56,12 +56,6 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-      },
-      borderRadius: {
-        xl: "calc(var(--radius) + 4px)",
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
         "accordion-down": {

@@ -2,22 +2,31 @@
 import { ref, computed } from 'vue'
 import draggable from 'vuedraggable'
 import SingleWindow from './components/SingleWindow.vue';
+import DoubleWindow from './components/DoubleWindow.vue';
 
 const Type = Object.freeze({
-  SW: Symbol("Single Wndow"),
-  BLUE: Symbol("blue"),
-  GREEN: Symbol("green")
+  SW: Symbol("Single Window"),
+  DW: Symbol("Double Window"),
 });
 
 // Source items that can be cloned when dragged.
 const sourceItems = ref([
-  { id: 1, name: Type.SW, color: 'red', width: 1200, height: 3000 },
-  { id: 2, name: 'Item 2', color: 'blue', width: 120, height: 300 },
+  {
+    id: 1,
+    name: Type.SW,
+    color: 'red',
+    borderL: 58,
+    borderR: 58,
+    glassX: 1084,
+    borderT: 58,
+    borderB: 58,
+    glassY: 2884,
+  },
+  { id: 2, name: Type.DW, color: 'blue', width: 120, height: 300 },
 ])
 
 // Target items start empty and will be populated by cloned items.
-const targetItems = ref([
-])
+const targetItems = ref([])
 
 // Reactive search query.
 const searchQuery = ref('')
@@ -91,7 +100,10 @@ function removeItem(id) {
       <draggable v-model="targetItems" group="items"
         class="flex flex-row items-center justify-center h-full w-full overflow-x-scroll">
         <template #item="{ element }">
-          <SingleWindow :key="element.id" v-bind="element" :name="element.name.description" />
+          <div :key="element.id">
+            <SingleWindow v-if="element.name === Type.SW" v-bind="element" :name="element.name.description" />
+            <DoubleWindow v-if="element.name === Type.DW" v-bind="element" :name="element.name.description" />
+          </div>
         </template>
       </draggable>
     </div>
