@@ -32,6 +32,12 @@ const measurement = ref({
 
 const width = computed(() => measurement.value.borderL + measurement.value.glassX + measurement.value.borderR)
 const height = computed(() => measurement.value.borderT + measurement.value.glassY + measurement.value.borderB)
+
+const updateMeasurement = ({ type, value }) => {
+    console.log(type, value)
+
+    measurement.value[type] = value
+}
 </script>
 
 <template>
@@ -44,15 +50,21 @@ const height = computed(() => measurement.value.borderT + measurement.value.glas
                     ✕
                 </button>
             </div>
-            <div class="bg-blue-500"
-                :style="{ width: `${width / 10 * 1.5}px`, height: `${height / 10 * 1.5}px`, borderTopWidth: `${measurement.borderT / 10 * 1.5}px`, borderRightWidth: `${measurement.borderR / 10 * 1.5}px`, borderBottomWidth: `${measurement.borderB / 10 * 1.5}px`, borderLeftWidth: `${measurement.borderL / 10 * 1.5}px` }">
+            <div class="flex border border-black"
+                :style="{ width: `${width / 10 * 1.5}px`, height: `${height / 10 * 1.5}px`, paddingLeft: `${measurement.borderL / 10 * 1.5}px`, paddingRight: `${measurement.borderR / 10 * 1.5}px`, paddingTop: `${measurement.borderT / 10 * 1.5}px`, paddingBottom: `${measurement.borderB / 10 * 1.5}px` }">
+                <div class="w-9 h-9 bg-blue-500/10 border border-black" :style="{
+                    width: `${(width - (measurement.borderL + measurement.borderR)) / 10 * 1.5}px`, height: `${(height - (measurement.borderT + measurement.borderB)) / 10 * 1.5}px`
+                }"></div>
             </div>
 
             <div class="flex flex-col">
                 <div class="flex flex-row">
-                    <AppRuler measurementType="width" :value="measurement.borderR" class="w-full" />
-                    <AppRuler measurementType="width" barrierType="none" :value="measurement.glassX" class="w-full" />
-                    <AppRuler measurementType="width" :value="measurement.borderL" class="w-full" />
+                    <AppRuler type="borderL" measurementType="width" :value="measurement.borderL" class="w-full"
+                        @update-value="updateMeasurement" />
+                    <AppRuler type="glassX" measurementType="width" barrierType="none" :value="measurement.glassX"
+                        class="w-full" @update-value="updateMeasurement" />
+                    <AppRuler type="borderR" measurementType="width" :value="measurement.borderR" class="w-full"
+                        @update-value="updateMeasurement" />
                 </div>
 
                 <AppRuler measurementType="width" :value="width" class="w-full" />
@@ -61,9 +73,12 @@ const height = computed(() => measurement.value.borderT + measurement.value.glas
 
         <div class="flex flex-row items-start mt-10">
             <div class="flex flex-col">
-                <AppRuler measurementType="height" :value="measurement.borderT" />
-                <AppRuler measurementType="height" barrierType="none" :value="measurement.glassY" />
-                <AppRuler measurementType="height" :value="measurement.borderB" />
+                <AppRuler type="borderT" measurementType="height" :value="measurement.borderT"
+                    @update-value="updateMeasurement" />
+                <AppRuler type="glassY" measurementType="height" barrierType="none" :value="measurement.glassY"
+                    @update-value="updateMeasurement" />
+                <AppRuler type="borderB" measurementType="height" :value="measurement.borderB"
+                    @update-value="updateMeasurement" />
             </div>
             <AppRuler measurementType="height" :value="height" />
         </div>

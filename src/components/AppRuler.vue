@@ -1,7 +1,12 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import RulerDialog from './RulerDialog.vue';
 
 const props = defineProps({
+    type: {
+        type: String,
+        required: true
+    },
     measurementType: { // Renamed from `type` to `measurementType`
         type: String,
         default: 'width',
@@ -18,6 +23,8 @@ const props = defineProps({
     }
 })
 
+const emit = defineEmits(['updateValue'])
+
 const computedValue = computed(() => {
     if (props.barrierType === 'none') {
         return props.value / 10 * 1.5 + 4;
@@ -27,6 +34,12 @@ const computedValue = computed(() => {
         return (props.value - 16) / 10 * 1.5 - 4;
     }
 })
+
+const openDialog = ref(false)
+
+const handleSubmit = (value) => {
+    emit('updateValue', { type: props.type, value })
+}
 </script>
 
 <template>
@@ -44,9 +57,12 @@ const computedValue = computed(() => {
             <div class="h-0.5 bg-black" :style="{ width: `${computedValue}px` }"></div>
             <div v-if="props.barrierType === 'end' || props.barrierType === 'both'" class="w-0.5 h-8 bg-black"></div>
         </div>
-        <span class="text-lg" :class="[props.measurementType === 'width' ? 'absolute bottom-0' : 'leading-[1px]']">{{
-            props.value
-        }}</span>
+        <button @click="openDialog = true" class="text-lg hover:underline"
+            :class="[props.measurementType === 'width' ? 'absolute bottom-0' : 'leading-[1px]']">
+            {{ props.value }}
+        </button>
         <div v-if="props.measurementType === 'width'" class="h-7"></div>
     </div>
+
+    <RulerDialog :value="props.value" :is-open="openDialog" @close="openDialog = false" @update-value="handleSubmit" />
 </template>

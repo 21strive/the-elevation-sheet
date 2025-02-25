@@ -50,7 +50,7 @@ function removeItem(id) {
   </button>
 
   <aside id="logo-sidebar"
-    class="fixed top-0 right-0 z-40 w-[400px] h-screen transition-transform translate-x-full sm:translate-x-0"
+    class="fixed top-0 right-0 z-10 w-[400px] h-screen transition-transform translate-x-full sm:translate-x-0"
     aria-label="Sidebar">
     <div class="h-full px-3 py-4 overflow-y-hidden bg-gray-50 dark:bg-gray-800">
       <form @submit.prevent class="flex items-center max-w-sm mx-auto">
