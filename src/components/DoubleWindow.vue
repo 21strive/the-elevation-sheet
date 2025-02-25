@@ -63,10 +63,10 @@ const updateMeasurement = ({ type, value }) => {
             </div>
             <div class="flex border border-black"
                 :style="{ width: `${width / 10 * 1.5}px`, height: `${height / 10 * 1.5}px`, paddingLeft: `${measurement.borderL / 10 * 1.5}px`, paddingRight: `${measurement.borderR / 10 * 1.5}px`, paddingTop: `${measurement.borderT / 10 * 1.5}px`, paddingBottom: `${measurement.borderB / 10 * 1.5}px` }">
-                <div class="h-full bg-blue-500" :style="{ width: `${measurement.glass1X / 10 * 1.5}px` }">
+                <div class="h-full bg-blue-500/10" :style="{ width: `${measurement.glass1X / 10 * 1.5}px` }">
                 </div>
-                <div class="h-full bg-yellow-500" :style="{ width: `${measurement.dividerX / 10 * 1.5}px` }"></div>
-                <div class="h-full bg-red-500" :style="{ width: `${measurement.glass2X / 10 * 1.5}px` }">
+                <div class="h-full" :style="{ width: `${measurement.dividerX / 10 * 1.5}px` }"></div>
+                <div class="h-full bg-blue-500/10" :style="{ width: `${measurement.glass2X / 10 * 1.5}px` }">
                 </div>
             </div>
 
