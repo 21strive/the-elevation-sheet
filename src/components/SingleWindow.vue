@@ -37,6 +37,8 @@ const props = defineProps({
     },
 })
 
+const emit = defineEmits(['removeItem', 'update'])
+
 const measurement = ref({
     borderL: props.borderL,
     borderR: props.borderB,
@@ -49,10 +51,19 @@ const measurement = ref({
 const width = computed(() => measurement.value.borderL + measurement.value.glassX + measurement.value.borderR)
 const height = computed(() => measurement.value.borderT + measurement.value.glassY + measurement.value.borderB)
 
+const Type = Object.freeze({
+    SW: Symbol("Single Window"),
+    DW: Symbol("Double Window"),
+});
+
 const updateMeasurement = ({ type, value }) => {
     console.log(type, value)
 
     measurement.value[type] = value
+    emit('update', {
+        id: 1,
+        name: Type.SW, ...measurement.value
+    }, props.id)
 }
 </script>
 
@@ -68,7 +79,7 @@ const updateMeasurement = ({ type, value }) => {
             </div>
             <div class="flex border border-black"
                 :style="{ width: `${width / 10 * 1.5}px`, height: `${height / 10 * 1.5}px`, paddingLeft: `${measurement.borderL / 10 * 1.5}px`, paddingRight: `${measurement.borderR / 10 * 1.5}px`, paddingTop: `${measurement.borderT / 10 * 1.5}px`, paddingBottom: `${measurement.borderB / 10 * 1.5}px` }">
-                <div class="w-9 h-9 bg-blue-500/10 border border-black" :style="{
+                <div class="bg-blue-500/10 border border-black" :style="{
                     width: `${(width - (measurement.borderL + measurement.borderR)) / 10 * 1.5}px`, height: `${(height - (measurement.borderT + measurement.borderB)) / 10 * 1.5}px`
                 }"></div>
             </div>

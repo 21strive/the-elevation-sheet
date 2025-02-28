@@ -14,7 +14,6 @@ const sourceItems = ref([
   {
     id: 1,
     name: Type.SW,
-    color: 'red',
     borderL: 58,
     borderR: 58,
     glassX: 1084,
@@ -22,7 +21,7 @@ const sourceItems = ref([
     borderB: 58,
     glassY: 2884,
   },
-  { id: 2, name: Type.DW, color: 'blue', width: 120, height: 300 },
+  { id: 2, name: Type.DW, width: 120, height: 300 },
 ])
 
 // Target items start empty and will be populated by cloned items.
@@ -40,6 +39,11 @@ const filteredSourceItems = computed(() => {
     item.name.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })
+
+const updateItem = (value, id) => {
+  const item = targetItems.value.find(item => item.id === id)
+  item.value = value
+}
 
 // Remove function: filters out the item with the provided id from the target list.
 function removeItem(id) {
@@ -101,7 +105,8 @@ function removeItem(id) {
         class="flex flex-row items-center justify-center h-full w-full overflow-x-scroll">
         <template #item="{ element }">
           <div :key="element.id">
-            <SingleWindow v-if="element.name === Type.SW" v-bind="element" :name="element.name.description" />
+            <SingleWindow v-if="element.name === Type.SW" v-bind="element" :name="element.name.description"
+              @update="updateItem" />
             <DoubleWindow v-if="element.name === Type.DW" v-bind="element" :name="element.name.description" />
           </div>
         </template>
