@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import AppRuler from './AppRuler.vue';
 
 const props = defineProps({
@@ -10,19 +10,67 @@ const props = defineProps({
     id: {
         type: Number,
         required: true
-    }
+    },
+    borderL: {
+        type: Number,
+        required: true,
+    },
+    borderR: {
+        type: Number,
+        required: true,
+    },
+    borderT: {
+        type: Number,
+        required: true,
+    },
+    borderB: {
+        type: Number,
+        required: true,
+    },
+    glass1X: {
+        type: Number,
+        required: true,
+    },
+    dividerX: {
+        type: Number,
+        required: true,
+    },
+    glass2X: {
+        type: Number,
+        required: true,
+    },
+    glassY: {
+        type: Number,
+        required: true,
+    },
 })
 
+const emit = defineEmits(['remove', 'update']);
+
 const measurement = ref({
-    borderL: 58,
-    borderR: 58,
-    borderT: 58,
-    borderB: 58,
-    glass1X: 1084,
-    dividerX: 100,
-    glass2X: 1084,
-    glassY: 2884,
+    borderL: props.borderL,
+    borderR: props.borderR,
+    borderT: props.borderT,
+    borderB: props.borderB,
+    glass1X: props.glass1X,
+    dividerX: props.dividerX,
+    glass2X: props.glass2X,
+    glassY: props.glassY,
 });
+
+// Watch for prop changes and update local state
+watch(() => props, (newProps) => {
+    measurement.value = {
+        borderL: newProps.borderL,
+        borderR: newProps.borderR,
+        borderT: newProps.borderT,
+        borderB: newProps.borderB,
+        glass1X: newProps.glass1X,
+        dividerX: newProps.dividerX,
+        glass2X: newProps.glass2X,
+        glassY: newProps.glassY,
+    };
+}, { deep: true });
 
 // Total width = left border + glass 1 + divider + glass 2 + right border
 const width = computed(() => {
@@ -44,29 +92,55 @@ const height = computed(() => {
     );
 });
 
-const updateMeasurement = ({ type, value }) => {
-    console.log(type, value)
+// Scale factor for visualization (mm to pixels)
+const scaleFactor = 0.15; // 1.5px for every 10mm
 
-    measurement.value[type] = value
-}
+const updateMeasurement = ({ type, value }) => {
+    if (value < 10) value = 10; // Minimum dimension
+
+    measurement.value[type] = value;
+
+    // Create a new object with all measurement properties
+    const updatedItem = {
+        borderL: measurement.value.borderL,
+        borderR: measurement.value.borderR,
+        glassX: measurement.value.glassX,
+        borderT: measurement.value.borderT,
+        borderB: measurement.value.borderB,
+        glassY: measurement.value.glassY
+    };
+
+    emit('update', updatedItem, props.id);
+};
+
+const removeItem = (id) => {
+    emit('remove', id);
+};
 </script>
 
 <template>
     <div class="flex flex-row items-start gap-4">
         <div class="flex flex-col items-center gap-4">
             <div class="space-x-2">
-                <span>{{ props.name }}</span>
+                <span class="font-semibold text-blue-700">{{ props.name }}</span>
                 <button @click="removeItem(props.id)"
-                    class="p-1 text-xs leading-none bg-white rounded-full text-red-500 hover:bg-red-100">
+                    class="p-1 text-xs leading-none bg-white rounded-full text-red-500 hover:bg-red-100 hover:text-red-700 transition-colors">
                     ✕
                 </button>
             </div>
-            <div class="flex border border-black"
-                :style="{ width: `${width / 10 * 1.5}px`, height: `${height / 10 * 1.5}px`, paddingLeft: `${measurement.borderL / 10 * 1.5}px`, paddingRight: `${measurement.borderR / 10 * 1.5}px`, paddingTop: `${measurement.borderT / 10 * 1.5}px`, paddingBottom: `${measurement.borderB / 10 * 1.5}px` }">
-                <div class="h-full bg-blue-500/10" :style="{ width: `${measurement.glass1X / 10 * 1.5}px` }">
+            <div class="flex border border-black" :style="{
+                width: `${width * scaleFactor}px`,
+                height: `${height * scaleFactor}px`,
+                padding: `${measurement.borderT * scaleFactor}px ${measurement.borderR * scaleFactor}px ${measurement.borderB * scaleFactor}px ${measurement.borderL * scaleFactor}px`
+            }">
+                <div class="border border-black h-full bg-cover bg-no-repeat bg-center"
+                    style="background-image: url('/assets/illustration/glass.png');"
+                    :style="{ width: `${measurement.glass1X * scaleFactor}px` }">
                 </div>
-                <div class="h-full" :style="{ width: `${measurement.dividerX / 10 * 1.5}px` }"></div>
-                <div class="h-full bg-blue-500/10" :style="{ width: `${measurement.glass2X / 10 * 1.5}px` }">
+                <div class="h-full" :style="{ width: `${measurement.dividerX * scaleFactor}px` }"></div>
+                <div class="border border-black h-full bg-cover bg-no-repeat bg-center"
+                    style="background-image: url('/assets/illustration/glass.png');"
+                    :style="{ width: `${measurement.glass2X * scaleFactor}px` }">
                 </div>
             </div>
 

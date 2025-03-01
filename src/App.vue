@@ -21,7 +21,18 @@ const sourceItems = ref([
     borderB: 58,
     glassY: 2884,
   },
-  { id: 2, name: Type.DW, width: 120, height: 300 },
+  {
+    id: 2,
+    name: Type.DW,
+    borderL: 58,
+    borderR: 58,
+    borderT: 58,
+    borderB: 58,
+    glass1X: 1084,
+    dividerX: 100,
+    glass2X: 1084,
+    glassY: 2884,
+  },
 ])
 
 // Target items start empty and will be populated by cloned items.
@@ -35,19 +46,23 @@ const filteredSourceItems = computed(() => {
   if (!searchQuery.value) {
     return sourceItems.value
   }
+  // Convert Symbol to string for searching
   return sourceItems.value.filter(item =>
-    item.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+    String(item.name.description).toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })
 
-const updateItem = (value, id) => {
-  const item = targetItems.value.find(item => item.id === id)
-  item.value = value
-}
+// Update function with fixed parameter order
+const updateItem = (updatedItem, id) => {
+  const index = targetItems.value.findIndex(item => item.id === id);
+  if (index !== -1) {
+    targetItems.value[index] = { ...targetItems.value[index], ...updatedItem };
+  }
+};
 
 // Remove function: filters out the item with the provided id from the target list.
 function removeItem(id) {
-  targetItems.value = targetItems.value.filter(item => item.id !== id)
+  targetItems.value = targetItems.value.filter(item => item.id !== id);
 }
 </script>
 
@@ -65,7 +80,7 @@ function removeItem(id) {
   <aside id="logo-sidebar"
     class="fixed top-0 right-0 z-10 w-[400px] h-screen transition-transform translate-x-full sm:translate-x-0"
     aria-label="Sidebar">
-    <div class="h-full px-3 py-4 overflow-y-hidden bg-gray-50 dark:bg-gray-800">
+    <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
       <form @submit.prevent class="flex items-center max-w-sm mx-auto">
         <label for="simple-search" class="sr-only">Search</label>
         <input type="text" id="simple-search" v-model="searchQuery"
@@ -84,10 +99,16 @@ function removeItem(id) {
       <draggable :list="filteredSourceItems" :group="{ name: 'items', pull: 'clone', put: false }"
         class="grid grid-cols-2 gap-4 mt-5">
         <template #item="{ element }">
-          <div :key="element.id" class="flex flex-col gap-2">
-            <div class="h-40 w-[180px]" :class="element.color === 'blue' ? 'bg-blue-500' : `bg-${element.color}-500`">
+          <div :key="element.id" class="flex flex-col gap-2 cursor-grab p-2 hover:bg-gray-100 rounded-lg">
+            <div v-if="element.name === Type.SW"
+              class="h-40 w-[180px] bg-blue-100 border border-blue-500 flex items-center justify-center">
+              <div class="text-blue-800 font-medium">{{ element.name.description }}</div>
             </div>
-            <span>{{ element.name }}</span>
+            <div v-if="element.name === Type.DW"
+              class="h-40 w-[180px] bg-green-100 border border-green-500 flex items-center justify-center">
+              <div class="text-green-800 font-medium">{{ element.name.description }}</div>
+            </div>
+            <span class="text-sm font-medium">{{ element.name.description }}</span>
           </div>
         </template>
       </draggable>
@@ -95,27 +116,28 @@ function removeItem(id) {
   </aside>
 
   <div class="flex flex-col gap-4 p-4 sm:mr-[400px] h-screen">
-    <div class="relative flex-1 p-4 border-2 border-gray-400 border-dashed rounded-lg">
+    <div class="relative flex-1 p-4 border-2 border-gray-400 border-dashed rounded-lg overflow-y-scroll">
       <div v-if="targetItems.length === 0"
         class="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 flex flex-col items-center">
         <span class="text-lg font-semibold">Target Area</span>
         <span class="text-sm text-gray-500">Gulirkan item kesini</span>
       </div>
       <draggable v-model="targetItems" group="items"
-        class="flex flex-row items-center justify-center h-full w-full overflow-x-scroll">
-        <template #item="{ element }">
-          <div :key="element.id">
+        class="flex flex-row items-center justify-center h-full w-full overflow-x-auto gap-4">
+        <template #item="{ element, index }">
+          <div :key="element.id" class="flex-shrink-0">
             <SingleWindow v-if="element.name === Type.SW" v-bind="element" :name="element.name.description"
-              @update="updateItem" />
-            <DoubleWindow v-if="element.name === Type.DW" v-bind="element" :name="element.name.description" />
+              @update="updateItem" @remove="removeItem" />
+            <DoubleWindow v-if="element.name === Type.DW" v-bind="element" :name="element.name.description"
+              @update="updateItem" @remove="removeItem" />
           </div>
         </template>
       </draggable>
     </div>
 
-    <div class="flex-none flex flex-row justify-between text-lg font-semibold">
-      <span>X: 100cm</span>
-      <span>Y: 100cm</span>
+    <div class="flex-none flex flex-row justify-between text-lg font-semibold bg-gray-100 p-4 rounded-lg">
+      <!-- <span>Width: {{ totalWidth }}cm</span>
+      <span>Height: {{ totalHeight }}cm</span> -->
       <span>Jumlah: {{ targetItems.length }} Item</span>
     </div>
   </div>
