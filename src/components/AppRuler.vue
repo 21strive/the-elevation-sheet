@@ -43,7 +43,8 @@ const handleSubmit = (value) => {
 </script>
 
 <template>
-    <div class="relative flex items-center gap-1" :class="props.measurementType === 'width' ? 'flex-col' : 'flex-row'">
+    <div class="relative flex items-center gap-1"
+        :class="props.measurementType === 'width' ? 'flex-col' : 'flex-row-reverse'">
         <div v-if="props.measurementType === 'height' && props.barrierType === 'none'" class="w-[11px]"></div>
         <div v-if="props.measurementType === 'width' && props.barrierType === 'none'" class="h-[11px]"></div>
 

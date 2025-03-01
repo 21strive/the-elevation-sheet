@@ -133,7 +133,7 @@ const removeItem = (id) => {
 
         </div>
         <!-- Vertical measurement rulers -->
-        <div class="flex flex-row items-start mt-10">
+        <!-- <div class="flex flex-row items-start mt-10">
             <div class="flex flex-col">
                 <AppRuler type="borderT" measurementType="height" :value="measurement.borderT"
                     @update-value="updateMeasurement" />
@@ -143,6 +143,6 @@ const removeItem = (id) => {
                     @update-value="updateMeasurement" />
             </div>
             <AppRuler measurementType="height" :value="height" />
-        </div>
+        </div> -->
     </div>
 </template>

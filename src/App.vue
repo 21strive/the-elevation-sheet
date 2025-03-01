@@ -3,8 +3,10 @@ import { ref, computed } from 'vue'
 import draggable from 'vuedraggable'
 import SingleWindow from './components/SingleWindow.vue';
 import DoubleWindow from './components/DoubleWindow.vue';
+import AppRuler from './components/AppRuler.vue';
 
 const Type = Object.freeze({
+  R: Symbol("Ruler"),
   SW: Symbol("Single Window"),
   DW: Symbol("Double Window"),
 });
@@ -36,7 +38,22 @@ const sourceItems = ref([
 ])
 
 // Target items start empty and will be populated by cloned items.
-const targetItems = ref([])
+const targetItems = ref([
+  {
+    id: 5,
+    name: Type.R,
+    borderT: 58,
+    borderB: 58,
+    glassY: 2884,
+  }
+])
+
+// Global Height
+const globalHeight = ref({
+  borderT: 58,
+  borderB: 58,
+  glassY: 2884,
+})
 
 // Reactive search query.
 const searchQuery = ref('')
@@ -52,6 +69,8 @@ const filteredSourceItems = computed(() => {
   )
 })
 
+const height = computed(() => globalHeight.value.borderT + globalHeight.value.glassY + globalHeight.value.borderB);
+
 // Update function with fixed parameter order
 const updateItem = (updatedItem, id) => {
   const index = targetItems.value.findIndex(item => item.id === id);
@@ -63,6 +82,14 @@ const updateItem = (updatedItem, id) => {
 // Remove function: filters out the item with the provided id from the target list.
 function removeItem(id) {
   targetItems.value = targetItems.value.filter(item => item.id !== id);
+}
+
+const updateMeasurement = ({ type, value }) => {
+  if (value < 10) value = 10; // Minimum dimension
+
+  console.log('global', value, type);
+
+  globalHeight.value[type] = value;
 }
 </script>
 
@@ -123,12 +150,26 @@ function removeItem(id) {
         <span class="text-sm text-gray-500">Gulirkan item kesini</span>
       </div>
       <draggable v-model="targetItems" group="items"
-        class="flex flex-row items-center justify-center h-full w-full overflow-x-auto gap-4">
+        class="flex flex-row items-start justify-center h-full w-full overflow-x-auto gap-4">
         <template #item="{ element, index }">
           <div :key="element.id" class="flex-shrink-0">
+            <!-- Vertical measurement rulers -->
+            <div v-if="element.name === Type.R && targetItems.length > 1" class="flex flex-row items-start mt-10">
+              <AppRuler measurementType="height" :value="height" />
+              <div class="flex flex-col">
+                <AppRuler type="borderT" measurementType="height" :value="globalHeight.borderT"
+                  @update-value="updateMeasurement" />
+                <AppRuler type="glassY" measurementType="height" barrierType="none" :value="globalHeight.glassY"
+                  @update-value="updateMeasurement" />
+                <AppRuler type="borderB" measurementType="height" :value="globalHeight.borderB"
+                  @update-value="updateMeasurement" />
+              </div>
+            </div>
             <SingleWindow v-if="element.name === Type.SW" v-bind="element" :name="element.name.description"
+              :border-t="globalHeight.borderT" :border-b="globalHeight.borderB" :glass-y="globalHeight.glassY"
               @update="updateItem" @remove="removeItem" />
             <DoubleWindow v-if="element.name === Type.DW" v-bind="element" :name="element.name.description"
+              :border-t="globalHeight.borderT" :border-b="globalHeight.borderB" :glass-y="globalHeight.glassY"
               @update="updateItem" @remove="removeItem" />
           </div>
         </template>
