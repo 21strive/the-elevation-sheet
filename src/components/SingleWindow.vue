@@ -7,7 +7,7 @@ const props = defineProps({
         type: String,
         required: true
     },
-    id: {
+    index: {
         type: Number,
         required: true
     },
@@ -81,11 +81,11 @@ const updateMeasurement = ({ type, value }) => {
         glassY: measurement.value.glassY
     };
 
-    emit('update', updatedItem, props.id);
+    emit('update', updatedItem, props.index);
 };
 
-const removeItem = (id) => {
-    emit('remove', id);
+const removeItem = () => {
+    emit('remove', props.index);
 };
 </script>
 
@@ -94,7 +94,7 @@ const removeItem = (id) => {
         <div class="flex flex-col items-center gap-4">
             <div class="space-x-2">
                 <span class="font-semibold text-blue-700">{{ props.name }}</span>
-                <button @click="removeItem(props.id)"
+                <button @click="removeItem"
                     class="p-1 text-xs leading-none bg-white rounded-full text-red-500 hover:bg-red-100 hover:text-red-700 transition-colors">
                     ✕
                 </button>

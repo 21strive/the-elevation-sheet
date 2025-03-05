@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import draggable from 'vuedraggable'
 import SingleWindow from './components/SingleWindow.vue';
 import DoubleWindow from './components/DoubleWindow.vue';
@@ -14,33 +14,30 @@ const Type = Object.freeze({
 // Source items that can be cloned when dragged.
 const sourceItems = ref([
   {
-    id: 1,
     name: Type.SW,
     borderL: 58,
     borderR: 58,
     glassX: 1084,
-    borderT: 58,
-    borderB: 58,
-    glassY: 2884,
+    // borderT: 58,
+    // borderB: 58,
+    // glassY: 2884,
   },
   {
-    id: 2,
     name: Type.DW,
     borderL: 58,
     borderR: 58,
-    borderT: 58,
-    borderB: 58,
+    // borderT: 58,
+    // borderB: 58,
     glass1X: 1084,
-    dividerX: 100,
+    dividerX: 58,
     glass2X: 1084,
-    glassY: 2884,
+    // glassY: 2884,
   },
 ])
 
 // Target items start empty and will be populated by cloned items.
 const targetItems = ref([
   {
-    id: 5,
     name: Type.R,
     borderT: 58,
     borderB: 58,
@@ -58,6 +55,16 @@ const globalHeight = ref({
 // Reactive search query.
 const searchQuery = ref('')
 
+watch(() => targetItems.value, (value) => {
+  if (value.length === 1) {
+    globalHeight.value = {
+      borderT: 58,
+      borderB: 58,
+      glassY: 2884,
+    }
+  }
+})
+
 // Computed property to filter source items based on the search query.
 const filteredSourceItems = computed(() => {
   if (!searchQuery.value) {
@@ -72,16 +79,16 @@ const filteredSourceItems = computed(() => {
 const height = computed(() => globalHeight.value.borderT + globalHeight.value.glassY + globalHeight.value.borderB);
 
 // Update function with fixed parameter order
-const updateItem = (updatedItem, id) => {
-  const index = targetItems.value.findIndex(item => item.id === id);
-  if (index !== -1) {
+const updateItem = (updatedItem, index) => {
+  // Directly update the item at the specified index
+  if (index !== -1 && index < targetItems.value.length) {
     targetItems.value[index] = { ...targetItems.value[index], ...updatedItem };
   }
 };
 
-// Remove function: filters out the item with the provided id from the target list.
-function removeItem(id) {
-  targetItems.value = targetItems.value.filter(item => item.id !== id);
+function removeItem(index) {
+  // Remove the item at the specified index from targetItems
+  targetItems.value = targetItems.value.filter((_, itemIndex) => itemIndex !== index);
 }
 
 const updateMeasurement = ({ type, value }) => {
@@ -150,11 +157,11 @@ const updateMeasurement = ({ type, value }) => {
         <span class="text-sm text-gray-500">Gulirkan item kesini</span>
       </div>
       <draggable v-model="targetItems" group="items"
-        class="flex flex-row items-start justify-center h-full w-full overflow-x-auto gap-4">
+        class="flex flex-row items-start justify-center h-full w-full overflow-x-auto">
         <template #item="{ element, index }">
-          <div :key="element.id" class="flex-shrink-0">
+          <div :key="index" class="flex-shrink-0">
             <!-- Vertical measurement rulers -->
-            <div v-if="element.name === Type.R && targetItems.length > 1" class="flex flex-row items-start mt-10">
+            <div v-if="element.name === Type.R && targetItems.length > 1" class="flex flex-row items-start mt-10 mr-4">
               <AppRuler measurementType="height" :value="height" />
               <div class="flex flex-col">
                 <AppRuler type="borderT" measurementType="height" :value="globalHeight.borderT"
@@ -165,12 +172,12 @@ const updateMeasurement = ({ type, value }) => {
                   @update-value="updateMeasurement" />
               </div>
             </div>
-            <SingleWindow v-if="element.name === Type.SW" v-bind="element" :name="element.name.description"
-              :border-t="globalHeight.borderT" :border-b="globalHeight.borderB" :glass-y="globalHeight.glassY"
-              @update="updateItem" @remove="removeItem" />
-            <DoubleWindow v-if="element.name === Type.DW" v-bind="element" :name="element.name.description"
-              :border-t="globalHeight.borderT" :border-b="globalHeight.borderB" :glass-y="globalHeight.glassY"
-              @update="updateItem" @remove="removeItem" />
+            <SingleWindow v-if="element.name === Type.SW" :index="index" v-bind="element"
+              :name="element.name.description" :border-t="globalHeight.borderT" :border-b="globalHeight.borderB"
+              :glass-y="globalHeight.glassY" @update="updateItem" @remove="removeItem" />
+            <DoubleWindow v-if="element.name === Type.DW" :index="index" v-bind="element"
+              :name="element.name.description" :border-t="globalHeight.borderT" :border-b="globalHeight.borderB"
+              :glass-y="globalHeight.glassY" @update="updateItem" @remove="removeItem" />
           </div>
         </template>
       </draggable>
