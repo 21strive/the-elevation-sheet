@@ -25,14 +25,21 @@ const props = defineProps({
 
 const emit = defineEmits(['updateValue'])
 
+const scaleFactor = 0.15; // 1.5px for every 10mm
+
 const computedValue = computed(() => {
     if (props.barrierType === 'none') {
-        return props.value / 10 * 1.5 + 4;
-    } else if (props.barrierType === 'start' && props.barrierType === 'end') {
-        return (props.value - 8) / 10 * 1.5 - 2;
+        return Math.round(props.value * scaleFactor) - 2;
     } else {
-        return (props.value - 16) / 10 * 1.5 - 4;
+        return Math.round(props.value * scaleFactor) - 3;
     }
+    // if (props.barrierType === 'none') {
+    //     return props.value * scaleFactor + 4;
+    // } else if (props.barrierType === 'start' && props.barrierType === 'end') {
+    //     return (props.value - 8) * scaleFactor - 2;
+    // } else {
+    //     return (props.value - 16) * scaleFactor - 4;
+    // }
 })
 
 const openDialog = ref(false)
