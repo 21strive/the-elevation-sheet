@@ -1,5 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
+
+import { useTargetItemsStore } from '@/stores/targetItemsStore';
 import AppRuler from './AppRuler.vue';
 
 const props = defineProps({
@@ -38,6 +40,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['remove', 'update']);
+
+const targetItemsStore = useTargetItemsStore();
 
 const measurement = ref({
     borderL: props.borderL,
@@ -118,14 +122,15 @@ const removeItem = () => {
             </div> -->
 
             <!-- Horizontal measurement rulers -->
-            <div class="flex flex-col">
+            <div class="flex flex-col" :class="[targetItemsStore.count > 2 && props.index % 2 === 1 && 'mt-8']">
                 <div class="flex flex-row">
-                    <AppRuler type="borderL" measurementType="width" :value="measurement.borderL" class="w-full"
+                    <AppRuler type="borderL" measurementType="width" :position="props.index % 2 === 0 ? 'up' : 'down'"
+                        :value="measurement.borderL" class="w-full" @update-value="updateMeasurement" />
+                    <AppRuler type="glassX" measurementType="width" barrierType="none"
+                        :position="props.index % 2 === 0 ? 'up' : 'down'" :value="measurement.glassX" class="w-full"
                         @update-value="updateMeasurement" />
-                    <AppRuler type="glassX" measurementType="width" barrierType="none" :value="measurement.glassX"
-                        class="w-full" @update-value="updateMeasurement" />
-                    <AppRuler type="borderR" measurementType="width" :value="measurement.borderR" class="w-full"
-                        @update-value="updateMeasurement" />
+                    <AppRuler type="borderR" measurementType="width" :position="props.index % 2 === 0 ? 'up' : 'down'"
+                        :value="measurement.borderR" class="w-full" @update-value="updateMeasurement" />
                 </div>
 
                 <AppRuler measurementType="width" :value="width" class="w-full" />

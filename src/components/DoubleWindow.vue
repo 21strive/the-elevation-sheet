@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import AppRuler from './AppRuler.vue';
+import { useTargetItemsStore } from '@/stores/targetItemsStore';
 
 const props = defineProps({
     name: {
@@ -46,6 +47,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['remove', 'update']);
+
+const targetItemsStore = useTargetItemsStore();
 
 const measurement = ref({
     borderL: props.borderL,
@@ -145,17 +148,19 @@ const removeItem = () => {
             </div>
 
             <div class="flex flex-col">
-                <div class="flex flex-row">
-                    <AppRuler type="borderL" measurementType="width" :value="measurement.borderL" class="w-full"
+                <div class="flex flex-row" :class="[targetItemsStore.count > 2 && props.index % 2 === 1 && 'mt-8']">
+                    <AppRuler type="borderL" measurementType="width" :position="props.index % 2 === 0 ? 'up' : 'down'"
+                        :value="measurement.borderL" class="w-full" @update-value="updateMeasurement" />
+                    <AppRuler type="glass1X" measurementType="width" :position="props.index % 2 === 0 ? 'up' : 'down'"
+                        barrierType="none" :value="measurement.glass1X" class="w-full"
                         @update-value="updateMeasurement" />
-                    <AppRuler type="glass1X" measurementType="width" barrierType="none" :value="measurement.glass1X"
-                        class="w-full" @update-value="updateMeasurement" />
-                    <AppRuler type="dividerX" measurementType="width" :value="measurement.dividerX" class="w-full"
+                    <AppRuler type="dividerX" measurementType="width" :position="props.index % 2 === 0 ? 'up' : 'down'"
+                        :value="measurement.dividerX" class="w-full" @update-value="updateMeasurement" />
+                    <AppRuler type="glass2X" measurementType="width" :position="props.index % 2 === 0 ? 'up' : 'down'"
+                        barrierType="none" :value="measurement.glass2X" class="w-full"
                         @update-value="updateMeasurement" />
-                    <AppRuler type="glass2X" measurementType="width" barrierType="none" :value="measurement.glass2X"
-                        class="w-full" @update-value="updateMeasurement" />
-                    <AppRuler type="borderR" measurementType="width" :value="measurement.borderR" class="w-full"
-                        @update-value="updateMeasurement" />
+                    <AppRuler type="borderR" measurementType="width" :position="props.index % 2 === 0 ? 'up' : 'down'"
+                        :value="measurement.borderR" class="w-full" @update-value="updateMeasurement" />
                 </div>
 
                 <AppRuler type="width" measurementType="width" :value="width" class="w-full" />

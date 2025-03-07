@@ -17,6 +17,11 @@ const props = defineProps({
         default: 'both',
         validator: (value) => ['none', 'start', 'end', 'both'].includes(value)
     },
+    position: {
+        type: String,
+        default: 'down',
+        validator: (value) => ['up', 'down'].includes(value)
+    },
     value: {
         type: Number,
         required: true
@@ -52,6 +57,12 @@ const handleSubmit = (value) => {
 <template>
     <div class="relative flex items-center gap-1"
         :class="props.measurementType === 'width' ? 'flex-col' : 'flex-row-reverse'">
+        <div v-if="props.measurementType === 'width' && props.position === 'up'" class="h-7"></div>
+        <button v-if="props.position === 'up'" @click="openDialog = true" class="text-lg hover:underline"
+            :class="[props.measurementType === 'width' ? 'absolute top-0' : 'leading-[1px]']">
+            {{ props.value }}
+        </button>
+
         <div v-if="props.measurementType === 'height' && props.barrierType === 'none'" class="w-[11px]"></div>
         <div v-if="props.measurementType === 'width' && props.barrierType === 'none'" class="h-[11px]"></div>
 
@@ -65,7 +76,7 @@ const handleSubmit = (value) => {
             <div class="h-0.5 bg-black" :style="{ width: `${computedValue}px` }"></div>
             <div v-if="props.barrierType === 'end' || props.barrierType === 'both'" class="w-0.5 h-8 bg-black"></div>
         </div>
-        <button @click="openDialog = true" class="text-lg hover:underline"
+        <button v-if="props.position === 'down'" @click="openDialog = true" class="text-lg hover:underline"
             :class="[props.measurementType === 'width' ? 'absolute bottom-0' : 'leading-[1px]']">
             {{ props.value }}
         </button>

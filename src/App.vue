@@ -4,12 +4,11 @@ import draggable from 'vuedraggable'
 import SingleWindow from './components/SingleWindow.vue';
 import DoubleWindow from './components/DoubleWindow.vue';
 import AppRuler from './components/AppRuler.vue';
+import Type from './lib/type';
+import { useTargetItemsStore } from './stores/targetItemsStore';
 
-const Type = Object.freeze({
-  R: Symbol("Ruler"),
-  SW: Symbol("Single Window"),
-  DW: Symbol("Double Window"),
-});
+// Initialize the store
+const targetItemsStore = useTargetItemsStore();
 
 // Source items that can be cloned when dragged.
 const sourceItems = ref([
@@ -35,35 +34,15 @@ const sourceItems = ref([
   },
 ])
 
-// Target items start empty and will be populated by cloned items.
-const targetItems = ref([
-  {
-    name: Type.R,
-    borderT: 58,
-    borderB: 58,
-    glassY: 2884,
+// Watch for changes in the target items
+watch(() => targetItemsStore.items, (value) => {
+  if (value.length === 1) {
+    targetItemsStore.resetGlobalHeight();
   }
-])
-
-// Global Height
-const globalHeight = ref({
-  borderT: 58,
-  borderB: 58,
-  glassY: 2884,
-})
+}, { deep: true })
 
 // Reactive search query.
 const searchQuery = ref('')
-
-watch(() => targetItems.value, (value) => {
-  if (value.length === 1) {
-    globalHeight.value = {
-      borderT: 58,
-      borderB: 58,
-      glassY: 2884,
-    }
-  }
-})
 
 // Computed property to filter source items based on the search query.
 const filteredSourceItems = computed(() => {
@@ -75,29 +54,6 @@ const filteredSourceItems = computed(() => {
     String(item.name.description).toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })
-
-const height = computed(() => globalHeight.value.borderT + globalHeight.value.glassY + globalHeight.value.borderB);
-
-// Update function with fixed parameter order
-const updateItem = (updatedItem, index) => {
-  // Directly update the item at the specified index
-  if (index !== -1 && index < targetItems.value.length) {
-    targetItems.value[index] = { ...targetItems.value[index], ...updatedItem };
-  }
-};
-
-function removeItem(index) {
-  // Remove the item at the specified index from targetItems
-  targetItems.value = targetItems.value.filter((_, itemIndex) => itemIndex !== index);
-}
-
-const updateMeasurement = ({ type, value }) => {
-  if (value < 10) value = 10; // Minimum dimension
-
-  console.log('global', value, type);
-
-  globalHeight.value[type] = value;
-}
 </script>
 
 <template>
@@ -151,33 +107,36 @@ const updateMeasurement = ({ type, value }) => {
 
   <div class="flex flex-col gap-4 p-4 sm:mr-[400px] h-screen">
     <div class="relative flex-1 p-4 border-2 border-gray-400 border-dashed rounded-lg overflow-y-scroll">
-      <div v-if="targetItems.length === 0"
+      <div v-if="targetItemsStore.items.length === 0"
         class="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 flex flex-col items-center">
         <span class="text-lg font-semibold">Target Area</span>
         <span class="text-sm text-gray-500">Gulirkan item kesini</span>
       </div>
-      <draggable v-model="targetItems" group="items"
-        class="flex flex-row items-start justify-center h-full w-full overflow-x-auto">
+      <draggable v-model="targetItemsStore.items" group="items"
+        class="flex flex-row items-center justify-center h-full w-full overflow-x-auto">
         <template #item="{ element, index }">
           <div :key="index" class="flex-shrink-0">
             <!-- Vertical measurement rulers -->
-            <div v-if="element.name === Type.R && targetItems.length > 1" class="flex flex-row items-start mt-10 mr-4">
-              <AppRuler measurementType="height" :value="height" />
+            <div v-if="element.name === Type.R && targetItemsStore.items.length > 1"
+              class="flex flex-row items-start place-items-start mt-10 mr-4">
+              <AppRuler measurementType="height" :value="targetItemsStore.height" />
               <div class="flex flex-col">
-                <AppRuler type="borderT" measurementType="height" :value="globalHeight.borderT"
-                  @update-value="updateMeasurement" />
-                <AppRuler type="glassY" measurementType="height" barrierType="none" :value="globalHeight.glassY"
-                  @update-value="updateMeasurement" />
-                <AppRuler type="borderB" measurementType="height" :value="globalHeight.borderB"
-                  @update-value="updateMeasurement" />
+                <AppRuler type="borderT" measurementType="height" :value="targetItemsStore.globalHeight.borderT"
+                  @update-value="targetItemsStore.updateMeasurement" />
+                <AppRuler type="glassY" measurementType="height" barrierType="none"
+                  :value="targetItemsStore.globalHeight.glassY" @update-value="targetItemsStore.updateMeasurement" />
+                <AppRuler type="borderB" measurementType="height" :value="targetItemsStore.globalHeight.borderB"
+                  @update-value="targetItemsStore.updateMeasurement" />
               </div>
             </div>
             <SingleWindow v-if="element.name === Type.SW" :index="index" v-bind="element"
-              :name="element.name.description" :border-t="globalHeight.borderT" :border-b="globalHeight.borderB"
-              :glass-y="globalHeight.glassY" @update="updateItem" @remove="removeItem" />
+              :name="element.name.description" :border-t="targetItemsStore.globalHeight.borderT"
+              :border-b="targetItemsStore.globalHeight.borderB" :glass-y="targetItemsStore.globalHeight.glassY"
+              @update="targetItemsStore.updateItem" @remove="targetItemsStore.removeItem" />
             <DoubleWindow v-if="element.name === Type.DW" :index="index" v-bind="element"
-              :name="element.name.description" :border-t="globalHeight.borderT" :border-b="globalHeight.borderB"
-              :glass-y="globalHeight.glassY" @update="updateItem" @remove="removeItem" />
+              :name="element.name.description" :border-t="targetItemsStore.globalHeight.borderT"
+              :border-b="targetItemsStore.globalHeight.borderB" :glass-y="targetItemsStore.globalHeight.glassY"
+              @update="targetItemsStore.updateItem" @remove="targetItemsStore.removeItem" />
           </div>
         </template>
       </draggable>
@@ -186,7 +145,7 @@ const updateMeasurement = ({ type, value }) => {
     <div class="flex-none flex flex-row justify-between text-lg font-semibold bg-gray-100 p-4 rounded-lg">
       <!-- <span>Width: {{ totalWidth }}cm</span>
       <span>Height: {{ totalHeight }}cm</span> -->
-      <span>Jumlah: {{ targetItems.length }} Item</span>
+      <span>Jumlah: {{ targetItemsStore.count }} Item</span>
     </div>
   </div>
 </template>
