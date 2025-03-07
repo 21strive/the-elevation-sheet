@@ -118,7 +118,7 @@ const filteredSourceItems = computed(() => {
           <div :key="index" class="flex-shrink-0">
             <!-- Vertical measurement rulers -->
             <div v-if="element.name === Type.R && targetItemsStore.items.length > 1"
-              class="flex flex-row items-start place-items-start mt-10 mr-4">
+              class="flex flex-row gap-2 items-start place-items-start mt-10 mb-44 mr-4">
               <AppRuler measurementType="height" :value="targetItemsStore.height" />
               <div class="flex flex-col">
                 <AppRuler type="borderT" measurementType="height" :value="targetItemsStore.globalHeight.borderT"
