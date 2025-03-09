@@ -10,45 +10,59 @@ export const useTargetItemsStore = defineStore('targetItems', {
         borderT: 58,
         borderB: 58,
         glassY: 2884,
-      }
+      },
     ],
     globalHeight: {
       borderT: 58,
       borderB: 58,
       glassY: 2884,
-    }
+    },
   }),
 
   getters: {
     height: (state) =>
       state.globalHeight.borderT + state.globalHeight.glassY + state.globalHeight.borderB,
 
-    count: (state) => state.items.length
+    width: (state) => {
+      // Calculate the total width of all windows
+      return state.items
+        .filter((item) => item.name !== Type.R)
+        .reduce((total, item) => {
+          if (item.name === Type.SW) {
+            return total + item.borderL + item.glassX + item.borderR
+          } else if (item.name === Type.DW) {
+            return total + item.borderL + item.glass1X + item.dividerX + item.glass2X + item.borderR
+          }
+          return total
+        }, 0)
+    },
+
+    count: (state) => state.items.length,
   },
 
   actions: {
     updateItem(updatedItem, index) {
       if (index !== -1 && index < this.items.length) {
-        this.items[index] = { ...this.items[index], ...updatedItem };
+        this.items[index] = { ...this.items[index], ...updatedItem }
       }
     },
 
     removeItem(index) {
-      this.items = this.items.filter((_, itemIndex) => itemIndex !== index);
+      this.items = this.items.filter((_, itemIndex) => itemIndex !== index)
     },
 
     addItem(item) {
-      this.items.push(item);
+      this.items.push(item)
     },
 
     updateMeasurement({ type, value }) {
-      if (value < 10) value = 10; // Minimum dimension
+      if (value < 10) value = 10 // Minimum dimension
 
-      this.globalHeight[type] = value;
+      this.globalHeight[type] = value
     },
 
     setItems(items) {
-      this.items = items;
+      this.items = items
     },
 
     resetGlobalHeight() {
@@ -56,7 +70,7 @@ export const useTargetItemsStore = defineStore('targetItems', {
         borderT: 58,
         borderB: 58,
         glassY: 2884,
-      };
-    }
-  }
+      }
+    },
+  },
 })
