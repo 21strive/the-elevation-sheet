@@ -34,9 +34,9 @@ const scaleFactor = 0.15; // 1.5px for every 10mm
 
 const computedValue = computed(() => {
     if (props.barrierType === 'none') {
-        return Math.round(props.value * scaleFactor) - 2;
+        return Math.round(props.value * scaleFactor) - 1;
     } else {
-        return Math.round(props.value * scaleFactor) - 3;
+        return Math.round(props.value * scaleFactor) - 4;
     }
     // if (props.barrierType === 'none') {
     //     return props.value * scaleFactor + 4;
