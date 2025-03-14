@@ -38,6 +38,12 @@ export const useTargetItemsStore = defineStore('targetItems', {
     },
 
     count: (state) => state.items.length,
+
+    isRulerReverse: (state) => {
+      // return state.items.length % 2 !== 0
+      // check if the last item is a ruler
+      return state.items[state.items.length - 1].name === Type.R
+    },
   },
 
   actions: {

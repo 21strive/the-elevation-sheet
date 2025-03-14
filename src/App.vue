@@ -8,12 +8,13 @@ import DoubleWindow from './components/DoubleWindow.vue'
 import AppRuler from './components/AppRuler.vue'
 import Type from './lib/type'
 import { useTargetItemsStore } from './stores/targetItemsStore'
+import AppVerticalRuler from './components/AppVerticalRuler.vue'
 
 // Initialize the store
 const targetItemsStore = useTargetItemsStore()
 
 const vRuler = useTemplateRef('vRuler')
-const { width, height } = useElementSize(vRuler)
+const { width } = useElementSize(vRuler)
 
 // Source items that can be cloned when dragged.
 const sourceItems = ref([
@@ -179,26 +180,29 @@ const filteredSourceItems = computed(() => {
             <div
               ref="vRuler"
               v-if="element.name === Type.R && targetItemsStore.items.length > 1"
-              class="flex flex-row gap-2 items-start place-items-start mt-10 mb-44 mr-4"
+              class="flex gap-2 items-start place-items-start mb-44"
+              :class="{
+                'mt-[72px]': targetItemsStore.count === 2,
+                'mt-10': targetItemsStore.count !== 2,
+                'flex-row-reverse ml-4': targetItemsStore.isRulerReverse,
+                'flex-row mr-4': !targetItemsStore.isRulerReverse,
+              }"
             >
-              <AppRuler measurementType="height" :value="targetItemsStore.height" />
+              <AppVerticalRuler type="height" :value="targetItemsStore.height" />
               <div class="flex flex-col">
-                <AppRuler
+                <AppVerticalRuler
                   type="borderT"
-                  measurementType="height"
                   :value="targetItemsStore.globalHeight.borderT"
                   @update-value="targetItemsStore.updateMeasurement"
                 />
-                <AppRuler
+                <AppVerticalRuler
                   type="glassY"
-                  measurementType="height"
                   barrierType="none"
                   :value="targetItemsStore.globalHeight.glassY"
                   @update-value="targetItemsStore.updateMeasurement"
                 />
-                <AppRuler
+                <AppVerticalRuler
                   type="borderB"
-                  measurementType="height"
                   :value="targetItemsStore.globalHeight.borderB"
                   @update-value="targetItemsStore.updateMeasurement"
                 />
@@ -233,7 +237,10 @@ const filteredSourceItems = computed(() => {
       <div
         v-if="targetItemsStore.items.length > 2"
         class="flex flex-col self-center"
-        :style="{ marginLeft: `${Math.floor(width) + 16}px` }"
+        :style="{
+          marginLeft: targetItemsStore.isRulerReverse ? '0px' : `${Math.floor(width) + 16}px`,
+          marginRight: targetItemsStore.isRulerReverse ? `${Math.floor(width) + 16}px` : '0px',
+        }"
       >
         <AppRuler measurementType="width" :value="targetItemsStore.width" />
       </div>
